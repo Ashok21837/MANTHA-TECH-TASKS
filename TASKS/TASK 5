@@ -1,0 +1,121 @@
+/<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan EMI Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        #result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Loan EMI Calculator</h1>
+    <form id="loanForm">
+        <label for="loanAmount">Loan Amount:</label>
+        <input type="number" id="loanAmount" placeholder="Enter loan amount" required><br>
+
+        <label for="interestRate">Interest Rate (% per annum):</label>
+        <input type="number" id="interestRate" step="0.01" placeholder="Enter interest rate" required><br>
+
+        <label for="loanTerm">Loan Term (in years):</label>
+        <input type="number" id="loanTerm" placeholder="Enter loan term in years" required><br>
+
+        <button type="button" onclick="calculateEMI()">Calculate EMI</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        class Loan {
+            constructor(loanAmount, interestRate, loanTerm) {
+                this.loanAmount = loanAmount;
+                this.interestRate = interestRate / 100 / 12; // Monthly interest rate
+                this.loanTerm = loanTerm * 12; // Loan term in months
+                this.emisPaid = 0;
+                this.remainingAmount = loanAmount;
+            }
+
+            calculateMonthlyPayment() {
+                const numerator = this.loanAmount * this.interestRate * Math.pow((1 + this.interestRate), this.loanTerm);
+                const denominator = Math.pow((1 + this.interestRate), this.loanTerm) - 1;
+                const emi = numerator / denominator;
+                return emi.toFixed(2);
+            }
+
+            payEMI() {
+                const emi = this.calculateMonthlyPayment();
+                if (this.remainingAmount <= 0) {
+                    return "Loan fully paid!";
+                }
+                this.remainingAmount -= emi;
+                this.emisPaid++;
+                return emi;
+            }
+
+            checkLoanStatus() {
+                const totalEMIs = this.loanTerm;
+                const paidEMIs = this.emisPaid;
+                const remainingEMIs = totalEMIs - paidEMIs;
+                const remainingAmount = this.remainingAmount > 0 ? this.remainingAmount.toFixed(2) : 0;
+
+                return {
+                    totalEMIs,
+                    paidEMIs,
+                    remainingEMIs,
+                    remainingAmount
+                };
+            }
+        }
+
+        // Function to handle the EMI calculation and display
+        function calculateEMI() {
+            const loanAmount = parseFloat(document.getElementById('loanAmount').value);
+            const interestRate = parseFloat(document.getElementById('interestRate').value);
+            const loanTerm = parseInt(document.getElementById('loanTerm').value);
+
+            if (isNaN(loanAmount) || isNaN(interestRate) || isNaN(loanTerm)) {
+                alert("Please enter valid inputs");
+                return;
+            }
+
+            const loan = new Loan(loanAmount, interestRate, loanTerm);
+            const emi = loan.calculateMonthlyPayment();
+
+            // Display the EMI
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <p>Monthly EMI: $${emi}</p>
+                <button onclick="payEMI(${loanAmount}, ${interestRate}, ${loanTerm})">Pay EMI</button>
+                <div id="loanStatus"></div>
+            `;
+        }
+
+        // Function to pay EMI and check loan status
+        function payEMI(loanAmount, interestRate, loanTerm) {
+            const loan = new Loan(loanAmount, interestRate, loanTerm);
+            loan.payEMI();
+
+            const status = loan.checkLoanStatus();
+
+            const loanStatusDiv = document.getElementById('loanStatus');
+            loanStatusDiv.innerHTML = `
+                <p>Total EMIs: ${status.totalEMIs}</p>
+                <p>EMIs Paid: ${status.paidEMIs}</p>
+                <p>EMIs Remaining: ${status.remainingEMIs}</p>
+                <p>Remaining Loan Amount: $${status.remainingAmount}</p>
+            `;
+        }
+    </script>
+</body>
+</html>

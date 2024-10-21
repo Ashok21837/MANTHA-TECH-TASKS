@@ -1,0 +1,37 @@
+class BankAccount {
+    constructor(accountNumber, accountHolderName, balance) {
+        this.accountNumber = accountNumber;
+        this.accountHolderName = accountHolderName;
+        this.balance = balance;
+    }
+
+    deposit(amountDeposited) {
+        if (amountDeposited > 0) {
+            this.balance += amountDeposited;
+            console.log(`The deposited amount is ${amountDeposited}. The balance is ${this.balance}.`);
+        } else {
+            console.log('Please enter a correct deposited amount');
+        }
+    }
+
+    withdraw(amountWithdrawn) {
+        if (amountWithdrawn > 0 && amountWithdrawn <= this.balance) {
+            this.balance -= amountWithdrawn;
+            console.log(`The withdrawn amount is ${amountWithdrawn}. The balance is ${this.balance}.`);
+        } else if (amountWithdrawn > this.balance) {
+            console.log('Insufficient Balance');
+        } else {
+            console.log('Please enter the correct withdrawal amount');
+        }
+    }
+
+    checkBalance() {
+        console.log(`The current balance is ${this.balance}`);
+        return this.balance;
+    }
+}
+
+const account = new BankAccount(9703589197, 'ashok', 5000);
+account.deposit(1000);
+account.withdraw(500);
+account.checkBalance();
